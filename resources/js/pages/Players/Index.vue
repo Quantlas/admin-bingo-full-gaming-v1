@@ -14,8 +14,6 @@ const props = defineProps({
     },
 });
 
-console.log(props.players);
-
 const breadcrumbs: BreadcrumbItem[] = [
     {
         title: 'Jugadores',
@@ -38,6 +36,7 @@ interface Player {
     serial_number: string;
     payment_reference: string;
     numbers: string;
+    card_path: string;
     status: string;
     winner: boolean;
     created_at: string;
@@ -51,6 +50,7 @@ const carton = ref({
     serial_number: '',
     payment_reference: '',
     numbers: '',
+    card_path: '',
     status: '',
     winner: false,
     created_at: '',
@@ -108,6 +108,7 @@ const closeModal = () => {
         serial_number: '',
         payment_reference: '',
         numbers: '',
+        card_path: '',
         status: '',
         winner: false,
         created_at: '',
@@ -302,42 +303,8 @@ const formatDate = (isoString: string): string => {
 
                         <div class="mb-12 mt-12">
                             <h3 class="text-black-900 mb-4 text-center text-lg font-semibold">Cartón de bingo</h3>
-                            <div class="bingo-card mx-auto max-w-md overflow-hidden rounded-lg bg-white shadow-md">
-                                <!-- Encabezado -->
-                                <div class="grid grid-cols-5 bg-blue-600 py-2 text-center font-bold text-white">
-                                    <span>B</span>
-                                    <span>I</span>
-                                    <span>N</span>
-                                    <span>G</span>
-                                    <span>O</span>
-                                </div>
-
-                                <!-- Números -->
-                                <div
-                                    v-for="(row, rowIndex) in cardNumbers"
-                                    :key="`row-${rowIndex}`"
-                                    class="grid grid-cols-5 border-b border-gray-200 last:border-0"
-                                >
-                                    <div
-                                        v-for="(num, colIndex) in row"
-                                        :key="`cell-${rowIndex}-${colIndex}`"
-                                        :class="[
-                                            'relative border-r border-gray-200 p-3 text-center last:border-r-0',
-                                            'flex h-12 items-center justify-center',
-                                            isMarked(num) ? 'bg-green-50 text-green-800' : 'text-gray-800',
-                                            isFreeSpace(rowIndex, colIndex) ? 'bg-yellow-50' : '',
-                                        ]"
-                                    >
-                                        <template v-if="!isFreeSpace(rowIndex, colIndex)">
-                                            {{ num !== null ? num : '' }}
-                                            <div v-if="isMarked(num)" class="absolute inset-0 flex items-center justify-center">
-                                                <div class="h-8 w-8 rounded-full bg-green-300"></div>
-                                            </div>
-                                        </template>
-                                        <span v-else class="font-bold text-yellow-500">★</span>
-                                    </div>
-                                </div>
-
+                            <img class="mx-auto max-w-sm" :src="`/bingo-cards/${carton.card_path}`" alt="" />
+                            <div class="bingo-card mx-auto mt-8 max-w-md overflow-hidden rounded-lg bg-white shadow-md">
                                 <!-- Pie -->
                                 <div class="bg-gray-100 px-4 py-2 text-center text-sm text-gray-600">
                                     Serial: {{ carton.serial_number }} | Estado:

@@ -16,7 +16,7 @@ class AcceptPaymentNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $numbers;
+    public $filename;
     public $serial_number;
     public $user;
     public $status;
@@ -26,9 +26,9 @@ class AcceptPaymentNotification extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($numbers, $serial_number, $status, $user, $fecha_sorteo)
+    public function __construct($filename, $serial_number, $status, $user, $fecha_sorteo)
     {
-        $this->numbers = $numbers;
+        $this->filename = $filename;
         $this->serial_number = $serial_number;
         $this->status = $status;
         $this->user = $user;
@@ -40,18 +40,6 @@ class AcceptPaymentNotification extends Mailable
      */
     public function envelope(): Envelope
     {
-        // Generar la imagen del cartón
-        $generator = new BingoCardGenerator();
-        $image = $generator->generateCardImage(
-            $this->numbers,
-            $this->serial_number,
-            $this->status
-        );
-
-        // Guardar temporalmente la imagen
-        $imagePath = storage_path('app/public/cards/' . $this->serial_number . '.png');
-        $image->save($imagePath);
-
         return new Envelope(
             from: new Address(
                 config('mail.from.address'), // Email
@@ -80,7 +68,7 @@ class AcceptPaymentNotification extends Mailable
     public function attachments(): array
     {
         return [
-            Attachment::fromPath(storage_path('app/public/cards/' . $this->serial_number . '.png')),
+            Attachment::fromPath('images/paid-cards/' . $this->filename),
         ];
     }
 }
