@@ -25,11 +25,40 @@ class CardsController extends Controller
             ->join('games', 'cards.game_id', '=', 'games.id')
             ->join('payments', 'cards.id', '=', 'payments.payable_id')
             ->orderBy('id', 'desc')
+            ->limit(100)
             ->get();
 
         return Inertia::render('Players/Index', [
             'players' => $players,
         ]);
+    }
+
+    public function search(Request $request)
+    {
+        $q = $request->input('q');
+
+        if (empty($q)) {
+            return redirect()->route('players.index');
+        }
+
+        $players = Cards::select('cards.*', 'users.name', 'games.name as game_name', 'payments.reference as payment_reference')
+            ->join('users', 'cards.user_id', '=', 'users.id')
+            ->join('games', 'cards.game_id', '=', 'games.id')
+            ->join('payments', 'cards.id', '=', 'payments.payable_id')
+            ->where('serial_number', 'like', '%' . $q . '%')
+            ->orWhere('reference', 'like', '%' . $q . '%')
+            ->orWhere('users.name', 'like', '%' . $q . '%')
+            ->orWhere('games.name', 'like', '%' . $q . '%')
+            ->orWhere('payments.reference', 'like', '%' . $q . '%')
+            ->orWhere('cards.status', 'like', '%' . $q . '%')
+            ->orWhere('cards.created_at', 'like', '%' . $q . '%')
+            ->orderBy('id', 'desc')
+            ->limit(100)
+            ->get();
+
+        //logger(json_encode($players));
+
+        return $players;
     }
 
     public function update(Request $request, $id)
@@ -44,7 +73,6 @@ class CardsController extends Controller
             'cancelled' => 'failed',
             default => 'pending',
         };
-
 
         $payment = Payments::where('payable_id', $id)->first();
         $payment->status = $paymentStatus;
@@ -82,8 +110,6 @@ class CardsController extends Controller
             default:
                 $statusMail = 'Pendiente';
         }
-
-
 
         return redirect()->route('players.index');
     }

@@ -125,7 +125,7 @@
                         width="24"></a>
             </div>
             <p>Bingo Full Gaming &copy; {{ date('Y') }} - Todos los derechos reservados</p>
-            <p>Soporte: administrador@bingofullgaming.com | Teléfono: +1 234-567-8900</p>
+            <p>Soporte: administrador@bingofullgaming.com | Teléfono: +58 412-2820030</p>
             <p><small>Por favor no responda a este mensaje, es un envío automático.</small></p>
         </div>
     </div>

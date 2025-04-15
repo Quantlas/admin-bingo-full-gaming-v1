@@ -4,8 +4,8 @@ import { type BreadcrumbItem } from '@/types';
 import { Head, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import { Modal } from 'flowbite';
-import { BanIcon, EyeIcon, HandCoins, Trophy } from 'lucide-vue-next';
-import { ref, type PropType } from 'vue';
+import { BanIcon, EyeIcon, HandCoins, Search, Trophy } from 'lucide-vue-next';
+import { defineProps, ref, type PropType } from 'vue';
 
 const props = defineProps({
     players: {
@@ -13,6 +13,8 @@ const props = defineProps({
         required: true,
     },
 });
+
+console.log('Jugadores:', props.players);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -55,10 +57,6 @@ const carton = ref({
     winner: false,
     created_at: '',
 });
-
-const loading = ref(false);
-
-const errorMessage = ref('');
 
 const updateCard = (card_id: number, status: string) => {
     axios
@@ -126,14 +124,6 @@ const markedNumbers = ref<number[]>([]);
 const serialNumber = ref('');
 const cardNumbers = ref<(number | null)[][]>([]);
 
-const isFreeSpace = (rowIndex: number, colIndex: number): boolean => {
-    return rowIndex === 2 && colIndex === 2;
-};
-
-const isMarked = (num: number | null): boolean => {
-    return num !== null && markedNumbers.value.includes(num);
-};
-
 const processCardData = (jsonString: string) => {
     try {
         // Parsea la cadena JSON a objeto
@@ -168,6 +158,26 @@ const formatDate = (isoString: string): string => {
 
     return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
 };
+
+// Crear un estado local para los jugadores
+const localPlayers = ref([...props.players]);
+
+const searchQuery = ref('');
+const buscarJugadores = () => {
+    if (searchQuery.value.length > 0) {
+        axios
+            .get('/players/search?q=' + searchQuery.value)
+            .then((response) => {
+                console.log(response.data);
+                localPlayers.value = response.data;
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    } else {
+        router.reload();
+    }
+};
 </script>
 
 <template>
@@ -180,7 +190,22 @@ const formatDate = (isoString: string): string => {
                     <caption class="bg-white p-5 text-left text-lg font-semibold text-gray-900 dark:bg-gray-800 dark:text-white rtl:text-right">
                         Jugadores
                         <p class="mt-1 text-sm font-normal text-gray-500 dark:text-gray-400">Aquí puede ver todos los jugadores.</p>
+
+                        <!-- barra de búsqueda -->
+                        <div class="relative mt-4 w-[400px]">
+                            <input
+                                type="text"
+                                v-model="searchQuery"
+                                @keyup.enter="buscarJugadores"
+                                placeholder="Buscar jugadores..."
+                                class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 pr-12 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+                            />
+                            <button @click="buscarJugadores" class="absolute right-2 top-1/2 -translate-y-1/3 text-gray-500 hover:text-blue-500">
+                                <component :is="Search" />
+                            </button>
+                        </div>
                     </caption>
+
                     <thead class="bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope="col" class="px-6 py-3">Nombre</th>
@@ -194,7 +219,7 @@ const formatDate = (isoString: string): string => {
                     </thead>
                     <tbody>
                         <tr
-                            v-for="player in props.players"
+                            v-for="player in localPlayers"
                             class="border-b border-gray-200 odd:bg-white even:bg-gray-50 dark:border-gray-700 odd:dark:bg-gray-900 even:dark:bg-gray-800"
                         >
                             <th scope="row" class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-white">

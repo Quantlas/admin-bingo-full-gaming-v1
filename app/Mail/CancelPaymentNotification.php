@@ -2,9 +2,6 @@
 
 namespace App\Mail;
 
-use App\Models\Games;
-use App\Models\Payment;
-use App\Services\BingoCardGenerator;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;

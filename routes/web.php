@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     // Cards
     Route::get('/players', [CardsController::class, 'index'])->name('players.index');
     Route::put('/players/{id}', [CardsController::class, 'update'])->name('players.update');
+    Route::get('/players/search', [CardsController::class, 'search'])->name('players.search');
 });
 
 require __DIR__ . '/settings.php';
